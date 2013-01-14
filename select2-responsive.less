@@ -1,0 +1,53 @@
+// Touch-friendly style for select2 on small devices
+.select2-with-searchbox {
+  .modal-header {
+    display: none;
+  }
+}
+
+.select2.modal-backdrop {
+  display: none;
+}
+
+// Up to tablet
+@media (max-width: 767px) {
+  .select2-with-searchbox:not(.select2-offscreen) {
+    // All this nasty !important stuff is required to override inline styles
+    // that select2 injects
+    width: auto !important;
+    top: 20px !important;
+    left: 20px !important;
+    right: 20px;
+    position: fixed;
+
+    .modal-header {
+      display: block;
+    }
+
+    .select2-search {
+      margin-top: 15px;
+    }
+
+    .select2-result-label, input[type="text"] {
+      font-size: 125%;
+    }
+  }
+
+  .select2.modal-backdrop {
+    display: block;
+  }
+}
+
+// Up to landscape phone
+@media (max-width: 480px) {
+  .select2-with-searchbox:not(.select2-offscreen) {
+    top:   10px !important;
+    left:  10px !important;
+    right: 10px;
+
+    .modal-header .close {
+      padding: 10px;
+      margin: -10px;
+    }
+  }
+}

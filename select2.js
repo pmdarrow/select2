@@ -1023,13 +1023,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             this.positionDropdown();
 
-            var _this = this;
-            $(window).bind(resize, function() {
-                // Avoid extra repositioning when touch-friendly modal is displayed
-                if ($(window).width() >= 768) {
-                    _this.positionDropdown();
-                }
-            });
+            this.addModalElements(resize);
 
             this.dropdown.addClass("select2-drop-active");
 
@@ -1057,6 +1051,49 @@ the specific language governing permissions and limitations under the Apache Lic
             this.clearSearch();
 
             this.opts.element.trigger($.Event("close"));
+            this.removeModalElements();
+        },
+
+        // Inject elements into select2 to make it look at behave like
+        // a touch-friendly modal dialog.
+        addModalElements: function(resize) {
+          var drop, modal,
+              _this = this;
+
+          // Place a backdrop over the entire page
+          this.backdrop = $('<div/>', {'class': 'select2 modal-backdrop'});
+          $(document.body).append(this.backdrop);
+
+          // Inject a Bootstrap-style modal header if it doesn't exist
+          if (!this.headerAdded) {
+              modal = $('<div/>', {'class': 'modal-header'});
+              $('<button/>', {
+                  type: 'button',
+                  'class': 'close',
+                  html: '&times;',
+                  click: function() {
+                      return _this.close();
+                  }
+              }).appendTo(modal);
+              $('<h3/>', {
+                  text: 'Modal header'
+              }).appendTo(modal);
+              this.dropdown.prepend(modal);
+          }
+          this.headerAdded = true;
+
+          $(window).bind(resize, function() {
+              // Reposition dropdown when browser is resized on desktops
+              if ($(window).width() >= 768) {
+                  _this.positionDropdown();
+              }
+          });
+        },
+
+        // Does the opposite of the above
+        removeModalElements: function() {
+          this.backdrop.remove();
+          this.backdrop = null;
         },
 
         // abstract
