@@ -1022,6 +1022,14 @@ the specific language governing permissions and limitations under the Apache Lic
             this.dropdown.show();
 
             this.positionDropdown();
+
+            var _this = this;
+            $(window).bind(resize, function() {
+                if ($(window).width() >= 768) {
+                    _this.positionDropdown();
+                }
+            });
+
             this.dropdown.addClass("select2-drop-active");
 
             this.ensureHighlightVisible();
