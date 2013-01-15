@@ -1023,7 +1023,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             this.positionDropdown();
 
-            this.addModalElements(resize);
+            this.addResponsiveElements(resize);
 
             this.dropdown.addClass("select2-drop-active");
 
@@ -1051,13 +1051,13 @@ the specific language governing permissions and limitations under the Apache Lic
             this.clearSearch();
 
             this.opts.element.trigger($.Event("close"));
-            this.removeModalElements();
+            this.removeResponsiveElements();
         },
 
         // Inject elements into select2 to make it look at behave like
         // a touch-friendly modal dialog.
-        addModalElements: function(resize) {
-          var drop, modal,
+        addResponsiveElements: function(resize) {
+          var modal,
               _this = this;
 
           // Place a backdrop over the entire page
@@ -1091,7 +1091,7 @@ the specific language governing permissions and limitations under the Apache Lic
         },
 
         // Does the opposite of the above
-        removeModalElements: function() {
+        removeResponsiveElements: function() {
           this.backdrop.remove();
           this.backdrop = null;
         },
