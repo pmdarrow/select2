@@ -1756,6 +1756,7 @@ the specific language governing permissions and limitations under the Apache Lic
                 this.selection.focus();
 
             if (!equal(old, this.id(data))) { this.triggerChange(); }
+            killEvent(options);
         },
 
         // single
