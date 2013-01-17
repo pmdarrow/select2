@@ -1,6 +1,9 @@
 Select2
 =================
 
+**Note: This fork displays select2 as a modal dialog when viewed on browsers
+< 768px wide. Designed to work with Bootstrap.**
+
 Select2 is a jQuery based replacement for select boxes. It supports searching, remote data sets, and infinite scrolling of results. Look and feel of Select2 is based on the excellent [Chosen](http://harvesthq.github.com/chosen/) library.
 
 To get started -- checkout http://ivaynberg.github.com/select2!

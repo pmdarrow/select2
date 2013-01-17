@@ -639,7 +639,7 @@ the specific language governing permissions and limitations under the Apache Lic
             search.bind("focus", function () { search.addClass("select2-focused"); if (search.val() === " ") search.val(""); });
             search.bind("blur", function () { search.removeClass("select2-focused");});
 
-            this.dropdown.delegate(resultsSelector, "mouseup", this.bind(function (e) {
+            this.dropdown.delegate(resultsSelector, "click", this.bind(function (e) {
                 if ($(e.target).closest(".select2-result-selectable:not(.select2-disabled)").length > 0) {
                     this.highlightUnderEvent(e);
                     this.selectHighlighted(e);
@@ -1007,19 +1007,6 @@ the specific language governing permissions and limitations under the Apache Lic
                 });
             });
 
-            window.setTimeout(function() {
-                // this is done inside a timeout because IE will sometimes fire a resize event while opening
-                // the dropdown and that causes this handler to immediately close it. this way the dropdown
-                // has a chance to fully open before we start listening to resize events
-                $(window).bind(resize, function() {
-                    var s2 = $(selector);
-                    if (s2.length == 0) {
-                        $(window).unbind(resize);
-                    }
-                    s2.select2("close");
-                })
-            }, 10);
-
             this.clearDropdownAlignmentPreference();
 
             if (this.search.val() === " ") { this.search.val(""); }
@@ -1035,6 +1022,9 @@ the specific language governing permissions and limitations under the Apache Lic
             this.dropdown.show();
 
             this.positionDropdown();
+
+            this.addResponsiveElements(resize);
+
             this.dropdown.addClass("select2-drop-active");
 
             this.ensureHighlightVisible();
@@ -1051,7 +1041,6 @@ the specific language governing permissions and limitations under the Apache Lic
             this.container.parents().each(function() {
                 $(this).unbind("scroll." + self.containerId);
             });
-            $(window).unbind("resize." + this.containerId);
 
             this.clearDropdownAlignmentPreference();
 
@@ -1061,6 +1050,64 @@ the specific language governing permissions and limitations under the Apache Lic
             this.clearSearch();
 
             this.opts.element.trigger($.Event("close"));
+            this.removeResponsiveElements();
+        },
+
+        // Inject elements into select2 to make it look at behave like
+        // a touch-friendly modal dialog.
+        addResponsiveElements: function(resize) {
+          var modal,
+              _this = this;
+
+          // Place a backdrop over the entire page
+          this.backdrop = $('<div/>', {'class': 'select2 modal-backdrop'});
+          $(document.body).append(this.backdrop);
+
+          // Inject a Bootstrap-style modal header if it doesn't exist
+          if (!this.headerAdded) {
+              modal = $('<div/>', {'class': 'modal-header'});
+              $('<button/>', {
+                  type: 'button',
+                  'class': 'close',
+                  html: '&times;',
+                  click: function() {
+                      return _this.close();
+                  }
+              }).appendTo(modal);
+              $('<h3/>', {
+                  text: 'Modal header'
+              }).appendTo(modal);
+              this.dropdown.prepend(modal);
+          }
+          this.headerAdded = true;
+
+          $(window).bind(resize, function() {
+              // Reposition dropdown when browser is resized on desktops
+              if ($(window).width() >= 768) {
+                  _this.positionDropdown();
+              }
+          });
+
+          // Prevent user from accidentally scrolling parent page when
+          // touch modal is open
+          $(document.body).bind("touchmove." + this.containerId, function(e) {
+            if ($(window).width() < 768) {
+              var target = $(e.target);
+              if (!(target.hasClass("select2-results") ||
+                    target.hasClass("select2-result") ||
+                    target.hasClass("select2-result-label"))) {
+                killEvent(e);
+              }
+            }
+          });
+        },
+
+        // Does the opposite of the above
+        removeResponsiveElements: function() {
+          this.backdrop.remove();
+          this.backdrop = null;
+          $(window).unbind("resize." + this.containerId);
+          $(document.body).unbind("touchmove." + this.containerId);
         },
 
         // abstract
@@ -1723,6 +1770,7 @@ the specific language governing permissions and limitations under the Apache Lic
                 this.selection.focus();
 
             if (!equal(old, this.id(data))) { this.triggerChange(); }
+            killEvent(options);
         },
 
         // single
