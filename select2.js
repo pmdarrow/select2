@@ -1041,7 +1041,6 @@ the specific language governing permissions and limitations under the Apache Lic
             this.container.parents().each(function() {
                 $(this).unbind("scroll." + self.containerId);
             });
-            $(window).unbind("resize." + this.containerId);
 
             this.clearDropdownAlignmentPreference();
 
@@ -1088,12 +1087,27 @@ the specific language governing permissions and limitations under the Apache Lic
                   _this.positionDropdown();
               }
           });
+
+          // Prevent user from accidentally scrolling parent page when
+          // touch modal is open
+          $(document.body).bind("touchmove." + this.containerId, function(e) {
+            if ($(window).width() < 768) {
+              var target = $(e.target);
+              if (!(target.hasClass("select2-results") ||
+                    target.hasClass("select2-result") ||
+                    target.hasClass("select2-result-label"))) {
+                killEvent(e);
+              }
+            }
+          });
         },
 
         // Does the opposite of the above
         removeResponsiveElements: function() {
           this.backdrop.remove();
           this.backdrop = null;
+          $(window).unbind("resize." + this.containerId);
+          $(document.body).unbind("touchmove." + this.containerId);
         },
 
         // abstract
