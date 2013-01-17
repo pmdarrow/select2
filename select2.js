@@ -1075,7 +1075,7 @@ the specific language governing permissions and limitations under the Apache Lic
                   }
               }).appendTo(modal);
               $('<h3/>', {
-                  text: 'Modal header'
+                  html: this.opts.title || '&nbsp;'
               }).appendTo(modal);
               this.dropdown.prepend(modal);
           }
