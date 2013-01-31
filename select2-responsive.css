@@ -33,7 +33,7 @@
     bottom: 0;
     left: 0;
   }
-  .select2.modal-backdrop {
+  .select2.modal-backdrop.open {
     display: block;
   }
 }
