@@ -664,12 +664,15 @@ the specific language governing permissions and limitations under the Apache Lic
             }
 
             if (opts.element.is(":disabled") || opts.element.is("[readonly='readonly']")) this.disable();
+
+            this.initResponsiveElements();
         },
 
         // abstract
         destroy: function () {
             var select2 = this.opts.element.data("select2");
             if (select2 !== undefined) {
+                select2.destroyResponsiveElements();
                 select2.container.remove();
                 select2.dropdown.remove();
                 select2.opts.element
@@ -1023,13 +1026,13 @@ the specific language governing permissions and limitations under the Apache Lic
 
             this.positionDropdown();
 
-            this.addResponsiveElements(resize);
-
             this.dropdown.addClass("select2-drop-active");
 
             this.ensureHighlightVisible();
 
             this.focusSearch();
+
+            this.showResponsiveElements(resize);
         },
 
         // abstract
@@ -1048,41 +1051,42 @@ the specific language governing permissions and limitations under the Apache Lic
             this.container.removeClass("select2-dropdown-open").removeClass("select2-container-active");
             this.results.empty();
             this.clearSearch();
+            this.hideResponsiveElements();
 
             this.opts.element.trigger($.Event("close"));
-            this.removeResponsiveElements();
         },
 
         // Inject elements into select2 to make it look at behave like
         // a touch-friendly modal dialog.
-        addResponsiveElements: function(resize) {
-          var modal,
-              _this = this;
+        initResponsiveElements: function() {
+          var _this = this;
 
           // Place a backdrop over the entire page
           this.backdrop = $('<div/>', {'class': 'select2 modal-backdrop'});
           $(document.body).append(this.backdrop);
 
-          // Inject a Bootstrap-style modal header if it doesn't exist
-          if (!this.headerAdded) {
-              modal = $('<div/>', {'class': 'modal-header'});
-              $('<button/>', {
-                  type: 'button',
-                  'class': 'close',
-                  html: '&times;',
-                  click: function() {
-                      return _this.close();
-                  }
-              }).appendTo(modal);
-              $('<h3/>', {
-                  html: this.opts.title || '&nbsp;'
-              }).appendTo(modal);
-              this.dropdown.prepend(modal);
-          }
-          this.headerAdded = true;
+          // Inject a Bootstrap-style modal header
+          this.header = $('<div/>', {'class': 'modal-header'});
+          $('<button/>', {
+            type: 'button',
+            'class': 'close',
+            html: '&times;',
+            click: function() {
+              return _this.close();
+            }
+          }).appendTo(this.header);
+          $('<h3/>', {
+            html: this.opts.title || '&nbsp;'
+          }).appendTo(this.header);
+          this.dropdown.prepend(this.header);
+        },
 
+        showResponsiveElements: function(resize) {
+          var _this = this;
+          this.backdrop.addClass('open');
+
+          // Reposition dropdown when browser is resized on desktops
           $(window).bind(resize, function() {
-              // Reposition dropdown when browser is resized on desktops
               if ($(window).width() >= 768) {
                   _this.positionDropdown();
               }
@@ -1102,12 +1106,15 @@ the specific language governing permissions and limitations under the Apache Lic
           });
         },
 
-        // Does the opposite of the above
-        removeResponsiveElements: function() {
-          this.backdrop.remove();
-          this.backdrop = null;
+        hideResponsiveElements: function() {
+          this.backdrop.removeClass('open');
           $(window).unbind("resize." + this.containerId);
           $(document.body).unbind("touchmove." + this.containerId);
+        },
+
+        destroyResponsiveElements: function() {
+          this.backdrop.remove();
+          this.backdrop = null;
         },
 
         // abstract
